@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #rt{
+            display: flex;
+            height: 100%;
+            width: 100%;
+        }
+        #par{
+           height: 50%;
+            width: 50%; 
+            padding: 20px;
+            margin: 20px;
+        }
+        #par1{
+            height: 60px;
+            width: 50%;
+            padding: 10px;
+            margin: 20px;
+        }
+        button{
+            border-radius: 10px;
+            height: 30px;
+        }
+        #checkbox{
+            height: 10px;
+            
+        }
+        #neighbour{
+            margin: 10px;
+            width: 100%;
+            padding: 10px;
+            font-size: 10px;
+            font-family: Arial;
+        }
+        #div1{
+            width: 100%;
+            border-radius: 10px;
+            height: 30px;
+            border-style: solid;
+            border-width: 2px;
+            border-color: rgba(123, 122, 122, 0.741);
+        }
+        #contener{
+            padding: 10px;
+            width: 100%;
+            
+        }
+        .status{
+            border-radius: 10px;
+            background-color: rgba(255, 0, 0, 0.319);
+            color: red;
+            
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            
+        }
+        .name_dt{
+            color: gray;
+        }
+    </style>
+</head>
+<body>
+    <div id="rt">
+        <div id="par">
+            <h1>Текущая подписка</h1>
+            <div id="contener">
+                <div id="text3">ТАРИФ</div>
+                <div id="div1">{{ tarif }}</div>
+            </div>
+            <div id="rt">
+                <div id="par1">
+                    <div id="text3">СТАТУС</div>
+                    <div id="div1">{{ status }}</div>
+                </div>
+                <div id="par1">
+                    <div id="text3">СЛЕД. СПИСАНИЕ</div>
+                    <div id="div1">{{ spisanie }}</div>
+                </div>
+            </div>
+            <div id="rt">
+                <input type="checkbox" id="checkbox">
+                <div>Автопродление включено</div>
+            </div>
+            <br>
+            <button>Сменить тариф</button>
+            <button>Приостановить</button>
+        </div>
+        <div id="par">
+            <h1>История списаний</h1>
+            <div id="rt">
+                <div id="neighbour" class="name_dt">ДАТА</div>
+                <div id="neighbour" class="name_dt">ТАРИФ</div>
+                <div id="neighbour" class="name_dt">СУММА</div>
+                <div id="neighbour" class="name_dt">СТАТУС</div>
+            </div>
+            {%  %}
+            <div id="rt">
+                <b><div id="neighbour" class="data">ДАТА</div></b>
+                <div id="neighbour" class="trafic">ТАРИФ</div>
+                <div id="neighbour" class="summ">СУММА</div>
+                <div id="neighbour" class="status">СТАТУС</div>
+            </div>
+            {% %}
+        </div>
+    </div>
+</body>
+</html>

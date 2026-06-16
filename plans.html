@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Католог</title>
+    <style>
+        #rt{
+            display: flex;  
+        }
+        #categor{
+            border-style: solid;
+            border-width: 2px;
+            border-color: rgba(123, 122, 122, 0.741);
+            padding: 10px;
+            border-radius: 20px;
+            margin: 10px;
+            height: 33%;
+
+            display: flex;
+        }
+        #text1{
+            color: green;
+        }
+        #text2{
+            color: blue;
+        }
+        body{
+            height: 100%;
+            width: 100%;
+        }
+        #par{
+           height: 50%;
+            width: 50%; 
+            padding: 20pxs;
+        }
+        #text3{
+            color: rgba(123, 122, 122, 0.741);
+            font-size: 10px
+        }
+        .data{
+            border-style: solid;
+            border-width: 2px;
+            border-color: rgba(123, 122, 122, 0.741);
+            padding: 10px;
+            border-radius: 20px;
+            margin: 10px;
+            height: 20px;
+        }
+        button{
+            border-radius: 10px;
+            height: 30px;
+        }
+        #input1{
+            width: 100%;
+        }
+        #input2{
+            width: 90%;
+        }
+        #para{
+            width: 100%;
+        }
+        #neighbour{
+            padding: 10px;
+            border-radius: 20px;
+            margin: 10px;
+            width: 100%;
+        }
+        #information{
+            width: 50%;
+        }
+        #mark{
+            width: 50%;
+            padding: 10px;
+        }
+        .fixed-block {
+            
+            
+            padding: 15px;
+            background-color: rgba(0, 0, 255, 0.266);
+            color: blue;
+            font-size: 13px;
+            border-radius: 5px;
+            width: 50px;
+            height: 1px;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="rt">
+        <div id="par">
+            <h1>Тарифные планы</h1>
+            <div id ="categor">
+                <div id="information">
+                    <h2>Старт</h2>
+                    <div id="text2">490 ₽/мес</div>
+                    <p id="text1">До 3 пользователей<br>Базовые отчёты</p>
+                </div>
+                <div id="mark">
+                </div>
+            </div>
+            <div id ="categor">
+                <div id="information">
+                    <h2>Бизнес</h2>
+                    <div id="text2">1 490 ₽/мес</div>
+                    <p id="text1">До 20 пользователей<br>Все отчёты<br>Пробный 14 дней</p>
+                </div>
+                <div id="mark">
+                </div>
+            </div>
+            <div id ="categor">
+                <div id="information">
+                    <h2>Корпоративный</h2>
+                    <div id="text2">4 900 ₽/мес</div>
+                    <p id="text1">Без ограничений<br>Приоритетная поддержка</p>
+                </div>
+                <div id="mark">
+                </div>
+            </div>
+        </div>
+        <div id="par">
+            <h1>Оформление</h1>
+            <div>
+                <div id="text3">ТАРИФ</div>
+                <div id="trafic" class="data"></div>
+            </div>
+            <div id="rt">
+                <div id="neighbour">
+                    <div id="text3">ПЕРИОД</div>                    
+                    <div id="periud" class="data"></div>
+                </div>
+                <div id="neighbour">
+                    <div id="text3">ПРОБНЫЙ</div>
+                    <div id="proba" class="data"></div>
+                </div>
+            </div>
+            <div>
+                <div id="text3">ДАТА НАЧАЛА</div>
+                <div id="date" class="data"></div>
+            </div>
+            <div>
+                <div id="text3">ПЕРВОЕ СПИСАНИЕ</div>
+                <div id="first" class="data"></div>
+            </div>
+        <button>Оформить</button>
+        <button>Сравнить</button>
+        </div>
+    </div>
+    <script>
+        const elements = document.querySelectorAll('[id="categor"]');
+        
+        const choice = (e) => {
+
+        e.preventDefault();
+            mark = document.createElement('div')
+            mark.id='fixed-block'
+            mark.innerText = 'выбран'
+            mark.style.position  = 'relative'
+            mark.style.left  = '50%'
+            mark.style.top  = '10%'
+
+            
+            mark.style.padding= '15px';
+            mark.style.backgroundColor= 'rgba(0, 0, 255, 0.266)';
+            mark.style.color= 'blue';
+            mark.style.fontSize= '13px';
+            mark.style.borderRadius= '5px';
+            mark.style.width= '50px';
+            mark.style.height= '1px';
+
+            mark.style.display= 'flex';
+            mark.style.justifyContent= 'center';
+            mark.style.alignItems= 'center';
+  
+            elements.forEach((element) => {
+                div = element.querySelector('#mark');
+                if (element !== e.target) {
+                    div.innerHTML = '';
+                    element.style.borderColor = 'rgba(123, 122, 122, 0.741)';
+                }else {
+                    div.appendChild(mark)
+                    element.style.borderColor = 'rgb(0, 0, 225)';
+                    trafic = document.getElementById('trafic')
+                    periud = document.getElementById('periud')
+                    proba = document.getElementById('proba')
+                    date = document.getElementById('date')
+                    first = document.getElementById('first')
+
+                    periud.innerText ='Месяц'
+                    s = new Date()
+                    console.log(s)
+                }
+            });
+        };
+
+        elements.forEach((element) => {
+            element.addEventListener('click', choice);
+        });
+    </script>
+</body>
+</html>
