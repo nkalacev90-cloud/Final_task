@@ -16,14 +16,18 @@
             border-radius: 20px;
             margin: 10px;
             height: 33%;
+            position: relative;
+            z-index: 1;
 
             display: flex;
         }
         #text1{
             color: green;
+            pointer-events: none;
         }
         #text2{
             color: blue;
+            pointer-events: none;
         }
         body{
             height: 100%;
@@ -68,10 +72,12 @@
         }
         #information{
             width: 50%;
+            pointer-events: none;
         }
         #mark{
             width: 50%;
             padding: 10px;
+            pointer-events: none;
         }
         .fixed-block {
             
@@ -83,6 +89,7 @@
             border-radius: 5px;
             width: 50px;
             height: 1px;
+            pointer-events: none;
 
             display: flex;
             justify-content: center;
@@ -171,6 +178,7 @@
             mark.style.borderRadius= '5px';
             mark.style.width= '50px';
             mark.style.height= '1px';
+            mark.style.pointerEvents= 'none';
 
             mark.style.display= 'flex';
             mark.style.justifyContent= 'center';
@@ -178,21 +186,55 @@
   
             elements.forEach((element) => {
                 div = element.querySelector('#mark');
+                month_arr= ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек']
+                days_in_months = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
                 if (element !== e.target) {
                     div.innerHTML = '';
                     element.style.borderColor = 'rgba(123, 122, 122, 0.741)';
-                }else {
-                    div.appendChild(mark)
-                    element.style.borderColor = 'rgb(0, 0, 225)';
-                    trafic = document.getElementById('trafic')
-                    periud = document.getElementById('periud')
-                    proba = document.getElementById('proba')
-                    date = document.getElementById('date')
-                    first = document.getElementById('first')
+                }else{
+                    div2 = div.querySelector('div')
+                    if(!div2){
+                        div.appendChild(mark)
 
-                    periud.innerText ='Месяц'
-                    s = new Date()
-                    console.log(s)
+                        name1 = element.querySelector('h2').innerText
+                        name2 = element.querySelector('#text2').innerText
+                        element.style.borderColor = 'rgb(0, 0, 225)';
+                        trafic = document.getElementById('trafic')
+                        periud = document.getElementById('periud')
+                        proba = document.getElementById('proba')
+                        date = document.getElementById('date')
+                        first = document.getElementById('first')
+
+                        periud.innerText ='Месяц'
+                        s = new Date()
+                        year = s.getFullYear()
+
+                        if(year % 4 == 0){
+                            days_in_months[1]= 29
+                        }
+
+                        month = s.getMonth() + 1
+                        day = s.getDate()
+                        date.innerText = `${day} ${month_arr[month]}`
+                        trafic.innerText = `${name1}•${name2}`
+
+                        if(name1 == "Бизнес"){
+                            proba.innerText="14 дней"
+                            if(day + 14 > days_in_months[month]){
+                                first.innerText = `${day+14-days_in_months[month]}${month_arr[month+1]}•${name2}`
+                            }
+                            else{
+                                first.innerText = `${day+14}${month_arr[month]}•${name2}`
+                            }
+                        }else{
+                            proba.innerText="НЕТ"
+                            first.innerText = `${date.innerText}•${name2}`
+                        }
+
+                    
+
+                    }
+                    
                 }
             });
         };
