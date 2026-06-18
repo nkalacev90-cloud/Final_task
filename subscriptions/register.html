@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Регистрация</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f2f5; }
+        .container { background: white; padding: 40px 35px; border-radius: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); width: 380px; }
+        .container h1 { font-size: 26px; font-weight: 700; color: #1a2634; margin-bottom: 6px; }
+        .container .sub { color: #8a9aa8; font-size: 14px; margin-bottom: 24px; }
+        .container label { font-weight: 500; font-size: 13px; color: #2c3e50; display: block; margin-bottom: 4px; }
+        .container input { width: 100%; padding: 10px 14px; border: 1px solid #d0d9e3; border-radius: 8px; font-size: 14px; margin-bottom: 16px; transition: border 0.2s; }
+        .container input:focus { outline: none; border-color: #2c7be5; }
+        .container .error { color: #e74c3c; font-size: 14px; margin-bottom: 12px; min-height: 20px; }
+        .container button { width: 100%; padding: 12px; background: #27ae60; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .container button:hover { background: #1e8449; }
+        .container .login-link { margin-top: 16px; text-align: center; font-size: 14px; color: #8a9aa8; }
+        .container .login-link a { color: #2c7be5; text-decoration: none; }
+        .container .login-link a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>📝 Регистрация</h1>
+        <p class="sub">Создайте аккаунт в системе биллинга</p>
+
+        <div id="error" class="error"></div>
+
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="user@example.com">
+
+        <label for="password">Пароль</label>
+        <input type="password" id="password" placeholder="••••••••">
+
+        <label for="password2">Подтверждение пароля</label>
+        <input type="password" id="password2" placeholder="••••••••">
+
+        <button onclick="registerUser()">Зарегистрироваться</button>
+
+        <div class="login-link">
+            Уже есть аккаунт? <a href="login.html">Войти</a>
+        </div>
+    </div>
+
+    <script src="api.js"></script>
+    <script>
+        async function registerUser() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const password2 = document.getElementById('password2').value;
+            const errorEl = document.getElementById('error');
+
+            if (!email || !password || !password2) {
+                errorEl.textContent = 'Заполните все поля';
+                return;
+            }
+
+            if (password !== password2) {
+                errorEl.textContent = 'Пароли не совпадают';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/register?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`, {
+                    method: 'POST'
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.detail || 'Ошибка регистрации');
+                }
+
+                alert('✅ Регистрация успешна! Теперь войдите в систему.');
+                window.location.href = 'login.html';
+
+            } catch (error) {
+                errorEl.textContent = error.message;
+            }
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') registerUser();
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Вход</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #f0f2f5;
+        }
+
+        .login-container {
+            background: white;
+            padding: 40px 35px;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            width: 360px;
+        }
+
+        .login-container h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: #1a2634;
+            margin-bottom: 6px;
+        }
+
+        .login-container .sub {
+            color: #8a9aa8;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .login-container label {
+            font-weight: 500;
+            font-size: 13px;
+            color: #2c3e50;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .login-container input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #d0d9e3;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 16px;
+            transition: border 0.2s;
+        }
+
+        .login-container input:focus {
+            outline: none;
+            border-color: #2c7be5;
+        }
+
+        .login-container .error {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-bottom: 12px;
+            min-height: 20px;
+        }
+
+        .login-container button {
+            width: 100%;
+            padding: 12px;
+            background: #2c7be5;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .login-container button:hover {
+            background: #1a5fc7;
+        }
+
+        .login-container .register-link {
+            margin-top: 16px;
+            text-align: center;
+            font-size: 14px;
+            color: #8a9aa8;
+        }
+
+        .login-container .register-link a {
+            color: #2c7be5;
+            text-decoration: none;
+        }
+
+        .login-container .register-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <h1>🔐 Вход</h1>
+        <p class="sub">Войдите в систему биллинга</p>
+
+        <div id="error" class="error"></div>
+
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="admin@billing.local" value="admin@billing.local">
+
+        <label for="password">Пароль</label>
+        <input type="password" id="password" placeholder="••••••••" value="admin123">
+
+        <button onclick="loginUser()">Войти</button>
+
+        <div class="register-link">
+            Нет аккаунта? <a href="#" onclick="alert('Используйте admin@billing.local / admin123')">Зарегистрироваться</a>
+        </div>
+    </div>
+
+    <script src="api.js"></script>
+    <script>
+        async function loginUser() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorEl = document.getElementById('error');
+
+            if (!email || !password) {
+                errorEl.textContent = 'Введите email и пароль';
+                return;
+            }
+
+            try {
+                await login(email, password);
+                window.location.href = 'account.html';
+            } catch (error) {
+                errorEl.textContent = error.message;
+            }
+        }
+
+        // Вход по Enter
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                loginUser();
+            }
+        });
+    </script>
+
+</body>
+</html>

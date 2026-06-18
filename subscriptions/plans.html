@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Каталог тарифов</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: #f0f2f5; padding: 20px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+        .container { max-width: 1200px; width: 100%; background: white; border-radius: 16px; padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        .navbar { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 2px solid #eaeef3; margin-bottom: 25px; flex-wrap: wrap; gap: 10px; }
+        .navbar .logo { font-size: 24px; font-weight: 700; color: #1a2634; }
+        .navbar .nav-links { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .navbar .nav-links a { text-decoration: none; color: #2c3e50; font-weight: 500; padding: 8px 16px; border-radius: 8px; transition: background 0.2s; }
+        .navbar .nav-links a:hover { background: #f0f4f9; }
+        .navbar .nav-links .active { background: #eef3fa; color: #2c7be5; }
+        .navbar .nav-links button { background: #e74c3c; color: white; border: none; padding: 8px 20px; border-radius: 8px; font-weight: 500; cursor: pointer; transition: background 0.2s; }
+        .navbar .nav-links button:hover { background: #c0392b; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
+        .card { background: #ffffff; border-radius: 12px; padding: 20px 24px 24px; border: 1px solid #eaeef3; }
+        .card h2 { font-size: 20px; font-weight: 600; color: #1a2634; margin-bottom: 18px; }
+
+        .tariff-card { border: 2px solid #eaeef3; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; cursor: pointer; transition: all 0.2s; position: relative; }
+        .tariff-card:hover { border-color: #b0c4de; background: #f8faff; }
+        .tariff-card.selected { border-color: #2c7be5; background: #f0f7ff; }
+        .tariff-card h3 { font-size: 18px; color: #1a2634; }
+        .tariff-card .price { font-size: 16px; font-weight: 600; color: #2c7be5; margin: 4px 0; }
+        .tariff-card .features { font-size: 14px; color: #5d6f7e; margin-top: 6px; white-space: pre-line; }
+        .tariff-card .trial-badge { display: inline-block; background: #d5f5e3; color: #1a7a42; padding: 2px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; margin-top: 6px; }
+        .tariff-card .selected-mark { position: absolute; top: 12px; right: 16px; background: #2c7be5; color: white; padding: 4px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+
+        .detail-field { margin-bottom: 12px; }
+        .detail-field .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8a9aa8; margin-bottom: 4px; }
+        .detail-field .value { font-weight: 600; font-size: 16px; color: #1a2634; background: #f5f7fa; padding: 8px 14px; border-radius: 8px; border: 1px solid #e2e8f0; }
+
+        .btn { padding: 10px 22px; border: none; border-radius: 8px; font-weight: 500; cursor: pointer; transition: background 0.2s; font-size: 14px; }
+        .btn-primary { background: #2c7be5; color: white; }
+        .btn-primary:hover { background: #1a5fc7; }
+        .btn-outline { background: transparent; color: #2c3e50; border: 1px solid #d0d9e3; }
+        .btn-outline:hover { background: #f0f4f9; }
+        .btn-success { background: #27ae60; color: white; }
+        .btn-success:hover { background: #1e8449; }
+
+        .btn-group { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="navbar">
+            <div class="logo">💰 Billing</div>
+            <div class="nav-links">
+                <a href="plans.html" class="active">📦 Тарифы</a>
+                <a href="account.html">👤 Кабинет</a>
+                <a href="admin.html" id="adminLink" style="display:none;">⚙️ Админка</a>
+                <button onclick="logoutUser()">🚪 Выйти</button>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h2>📦 Тарифные планы</h2>
+                <div id="tariffsList"><p>Загрузка...</p></div>
+            </div>
+
+            <div class="card">
+                <h2 id="formTitle">📝 Оформление</h2>
+                <div class="detail-field">
+                    <div class="label">Тариф</div>
+                    <div class="value" id="selectedTariffName">—</div>
+                </div>
+                <div class="detail-field">
+                    <div class="label">Период</div>
+                    <div class="value" id="selectedPeriod">—</div>
+                </div>
+                <div class="detail-field">
+                    <div class="label">Пробный период</div>
+                    <div class="value" id="selectedTrial">—</div>
+                </div>
+                <div class="detail-field">
+                    <div class="label">Дата начала</div>
+                    <div class="value" id="selectedStartDate">—</div>
+                </div>
+                <div class="detail-field">
+                    <div class="label">Первое списание</div>
+                    <div class="value" id="selectedFirstBilling">—</div>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-success" id="subscribeBtn">✅ Оформить</button>
+                    <button class="btn btn-outline" id="backToAccountBtn">⬅ Назад в кабинет</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="api.js"></script>
+    <script>
+        if (!isLoggedIn()) {
+            alert('Сначала войдите в систему');
+            window.location.href = 'login.html';
+        }
+
+        let selectedTariffId = null;
+
+        async function loadTariffs() {
+            try {
+                const tariffs = await getTariffs();
+                const container = document.getElementById('tariffsList');
+
+                if (!tariffs || tariffs.length === 0) {
+                    container.innerHTML = '<p style="color:#7f8c8d;">Нет доступных тарифов</p>';
+                    return;
+                }
+
+                container.innerHTML = tariffs.map(t => `
+                    <div class="tariff-card" data-id="${t.id}">
+                        <h3>${t.name}</h3>
+                        <div class="price">${Number(t.price).toFixed(0)} ₽ / ${t.period_months === 1 ? 'мес' : t.period_months + ' мес'}</div>
+                        <div class="features">${t.trial_days > 0 ? `🔹 Пробный период: ${t.trial_days} дней` : '🔹 Без пробного периода'}</div>
+                        ${t.trial_days > 0 ? `<div class="trial-badge">🔥 ${t.trial_days} дней бесплатно</div>` : ''}
+                        <div class="selected-mark hidden">✅ Выбран</div>
+                    </div>
+                `).join('');
+
+                document.querySelectorAll('.tariff-card').forEach(card => {
+                    card.addEventListener('click', function() {
+                        document.querySelectorAll('.tariff-card').forEach(c => {
+                            c.classList.remove('selected');
+                            c.querySelector('.selected-mark')?.classList.add('hidden');
+                        });
+                        this.classList.add('selected');
+                        this.querySelector('.selected-mark')?.classList.remove('hidden');
+                        selectedTariffId = parseInt(this.dataset.id);
+                        updateOrderForm(this);
+                    });
+                });
+
+            } catch (error) {
+                document.getElementById('tariffsList').innerHTML = `<p style="color:red;">Ошибка: ${error.message}</p>`;
+            }
+        }
+
+        function updateOrderForm(card) {
+            const name = card.querySelector('h3')?.textContent || '—';
+            const price = card.querySelector('.price')?.textContent || '—';
+            const features = card.querySelector('.features')?.textContent || '';
+
+            document.getElementById('selectedTariffName').textContent = `${name} • ${price}`;
+            document.getElementById('selectedPeriod').textContent = '1 месяц';
+            document.getElementById('selectedTrial').textContent = features.includes('Пробный') ? '14 дней' : 'Нет';
+            document.getElementById('selectedStartDate').textContent = new Date().toLocaleDateString('ru-RU');
+
+            const trialDays = features.includes('Пробный') ? 14 : 0;
+            const startDate = new Date();
+            const firstBilling = new Date(startDate);
+            firstBilling.setDate(firstBilling.getDate() + (trialDays || 30));
+            document.getElementById('selectedFirstBilling').textContent = firstBilling.toLocaleDateString('ru-RU');
+        }
+
+        document.getElementById('subscribeBtn')?.addEventListener('click', async function() {
+            if (!selectedTariffId) {
+                alert('Выберите тариф');
+                return;
+            }
+
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const isChange = urlParams.get('change') === 'true';
+                const subId = window._currentSubscriptionId;
+
+                if (isChange && subId) {
+                    const result = await changeTariff(subId, selectedTariffId);
+                    alert(`✅ Тариф изменён! Сумма к оплате: ${result.proration.difference.toFixed(2)} ₽`);
+                } else {
+                    await createSubscription(selectedTariffId);
+                    alert('✅ Подписка оформлена!');
+                }
+                
+                window.location.href = 'account.html';
+            } catch (error) {
+                alert('❌ ' + error.message);
+            }
+        });
+
+        document.getElementById('backToAccountBtn')?.addEventListener('click', function() {
+            window.location.href = 'account.html';
+        });
+
+        function logoutUser() { logout(); }
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadTariffs();
+
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('change') === 'true') {
+                document.getElementById('formTitle').textContent = '🔄 Смена тарифа';
+                document.getElementById('subscribeBtn').textContent = '✅ Подтвердить смену';
+                
+                const sub = await getCurrentSubscription();
+                if (sub) {
+                    window._currentSubscriptionId = sub.id;
+                }
+            }
+
+            try {
+                const user = await getCurrentUser();
+                const adminLink = document.getElementById('adminLink');
+                if (user && user.is_admin) {
+                    adminLink.style.display = 'inline-block';
+                }
+            } catch {}
+        });
+    </script>
+
+</body>
+</html>

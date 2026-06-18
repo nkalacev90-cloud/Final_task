@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админка</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #f0f2f5;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 1400px;
+            width: 100%;
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eaeef3;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .navbar .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a2634;
+        }
+
+        .navbar .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .navbar .nav-links a {
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+
+        .navbar .nav-links a:hover {
+            background: #f0f4f9;
+        }
+
+        .navbar .nav-links .active {
+            background: #eef3fa;
+            color: #2c7be5;
+        }
+
+        .navbar .nav-links button {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .navbar .nav-links button:hover {
+            background: #c0392b;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 900px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px 24px 24px;
+            border: 1px solid #eaeef3;
+        }
+
+        .card h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a2634;
+            margin-bottom: 18px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f2f5;
+        }
+
+        .status-item:last-child {
+            border-bottom: none;
+        }
+
+        .status-item .label {
+            width: 140px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .status-item .bar-bg {
+            flex: 1;
+            height: 22px;
+            background: #f0f2f5;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .status-item .bar-fill {
+            height: 100%;
+            border-radius: 12px;
+            transition: width 0.5s;
+        }
+
+        .status-item .count {
+            width: 50px;
+            text-align: right;
+            font-weight: 600;
+            color: #1a2634;
+        }
+
+        .bar-active { background: #27ae60; }
+        .bar-trial { background: #2c7be5; }
+        .bar-paused { background: #f39c12; }
+        .bar-cancelled { background: #e74c3c; }
+        .bar-payment_error { background: #e67e22; }
+        .bar-expired { background: #95a5a6; }
+
+        .revenue-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f2f5;
+        }
+
+        .revenue-item:last-child {
+            border-bottom: none;
+        }
+
+        .revenue-item .month {
+            width: 80px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .revenue-item .bar-bg {
+            flex: 1;
+            height: 18px;
+            background: #f0f2f5;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .revenue-item .bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2c7be5, #6c5ce7);
+            border-radius: 10px;
+            transition: width 0.5s;
+        }
+
+        .revenue-item .amount {
+            width: 100px;
+            text-align: right;
+            font-weight: 600;
+            color: #1a2634;
+        }
+
+        .sub-card {
+            border: 1px solid #eaeef3;
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+            background: #fafbfc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .sub-card .info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .sub-card .info .field {
+            font-size: 14px;
+        }
+
+        .sub-card .info .field strong {
+            color: #2c3e50;
+        }
+
+        .sub-card .actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 6px 14px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-size: 13px;
+        }
+
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 12px;
+        }
+
+        .btn-primary {
+            background: #2c7be5;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #1a5fc7;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .btn-warning {
+            background: #f39c12;
+            color: white;
+        }
+        .btn-warning:hover {
+            background: #d68910;
+        }
+
+        .btn-pause {
+            background: #8e44ad;
+            color: white;
+        }
+        .btn-pause:hover {
+            background: #6c3483;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #2c3e50;
+            border: 1px solid #d0d9e3;
+        }
+        .btn-outline:hover {
+            background: #f0f4f9;
+        }
+
+        .status-badge-sm {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-sm-active { background: #d5f5e3; color: #1a7a42; }
+        .status-sm-trial { background: #d6eaf8; color: #1a5276; }
+        .status-sm-paused { background: #fdebd0; color: #a56b1f; }
+        .status-sm-cancelled { background: #fadbd8; color: #b03a2e; }
+        .status-sm-payment_error { background: #fadbd8; color: #b03a2e; }
+        .status-sm-expired { background: #e8e8e8; color: #555; }
+
+        .sub-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .text-muted {
+            color: #95a5a6;
+        }
+
+        .mt-10 {
+            margin-top: 10px;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+            align-items: center;
+        }
+
+        .filter-row label {
+            font-size: 13px;
+            color: #2c3e50;
+        }
+
+        .filter-row input[type="date"] {
+            padding: 6px 10px;
+            border: 1px solid #d0d9e3;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stats-grid .stat-box {
+            background: #f5f7fa;
+            padding: 16px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stats-grid .stat-box .stat-label {
+            font-size: 13px;
+            color: #8a9aa8;
+        }
+
+        .stats-grid .stat-box .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .stat-value-blue { color: #2c7be5; }
+        .stat-value-green { color: #27ae60; }
+
+        .monthly-title {
+            margin: 16px 0 10px;
+            color: #2c3e50;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="navbar">
+            <div class="logo">💰 Billing</div>
+            <div class="nav-links">
+                <a href="plans.html">📦 Тарифы</a>
+                <a href="account.html">👤 Кабинет</a>
+                <a href="admin.html" class="active">⚙️ Админка</a>
+                <button onclick="logoutUser()">🚪 Выйти</button>
+            </div>
+        </div>
+
+        <div class="grid">
+            <!-- ЛЕВАЯ КОЛОНКА: СТАТУСЫ ПОДПИСОК -->
+            <div class="card">
+                <h2>📊 Статусы подписок</h2>
+                <div id="statusStats">
+                    <p class="text-muted">Загрузка...</p>
+                </div>
+
+                <hr style="margin: 20px 0; border-color: #eaeef3;">
+
+                <h3>📋 Все подписки</h3>
+                <div id="subscriptionsList" class="sub-list">
+                    <p class="text-muted">Загрузка...</p>
+                </div>
+            </div>
+
+            <!-- ПРАВАЯ КОЛОНКА: ВЫРУЧКА -->
+            <div class="card">
+                <h2>💰 Отчёт по выручке</h2>
+
+                <div class="filter-row">
+                    <label>С <input type="date" id="revStartDate"></label>
+                    <label>По <input type="date" id="revEndDate"></label>
+                    <button class="btn btn-primary" id="applyRevenueFilter">Применить</button>
+                </div>
+
+                <div id="revenueDetail">
+                    <p class="text-muted">Выберите период для отчёта</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="api.js"></script>
+    <script>
+        // ============================================
+        // 1. ПРОВЕРКА ВХОДА И ПРАВ
+        // ============================================
+        if (!isLoggedIn()) {
+            alert('Сначала войдите в систему');
+            window.location.href = 'login.html';
+        }
+
+        let isAdmin = false;
+
+        const statusNames = {
+            'active': 'Активны',
+            'trial': 'Пробные',
+            'paused': 'Приостановлены',
+            'cancelled': 'Отменены',
+            'payment_error': 'Ошибка оплаты',
+            'expired': 'Истекли'
+        };
+
+        const statusColors = {
+            'active': 'bar-active',
+            'trial': 'bar-trial',
+            'paused': 'bar-paused',
+            'cancelled': 'bar-cancelled',
+            'payment_error': 'bar-payment_error',
+            'expired': 'bar-expired'
+        };
+
+        const statusSmClass = {
+            'active': 'status-sm-active',
+            'trial': 'status-sm-trial',
+            'paused': 'status-sm-paused',
+            'cancelled': 'status-sm-cancelled',
+            'payment_error': 'status-sm-payment_error',
+            'expired': 'status-sm-expired'
+        };
+
+        // ============================================
+        // 2. ПРОВЕРКА АДМИНА
+        // ============================================
+        async function checkAdmin() {
+            try {
+                const user = await getCurrentUser();
+                if (!user || !user.is_admin) {
+                    alert('⛔ Доступ запрещён. Только для администратора.');
+                    window.location.href = 'account.html';
+                    return false;
+                }
+                isAdmin = true;
+                return true;
+            } catch {
+                alert('Ошибка проверки прав');
+                window.location.href = 'account.html';
+                return false;
+            }
+        }
+
+        // ============================================
+        // 3. ЗАГРУЗКА ДАННЫХ
+        // ============================================
+        async function loadAdminData() {
+            if (!isAdmin) return;
+
+            try {
+                const subs = await adminGetSubscriptions();
+                const total = subs.length || 1;
+
+                // Статусы
+                const statusCounts = {};
+                subs.forEach(s => {
+                    statusCounts[s.status] = (statusCounts[s.status] || 0) + 1;
+                });
+
+                const statsContainer = document.getElementById('statusStats');
+                statsContainer.innerHTML = Object.keys(statusNames).map(key => {
+                    const count = statusCounts[key] || 0;
+                    const percent = Math.round((count / total) * 100);
+                    return `
+                        <div class="status-item">
+                            <span class="label">${statusNames[key]}</span>
+                            <div class="bar-bg">
+                                <div class="bar-fill ${statusColors[key]}" style="width:${percent}%;"></div>
+                            </div>
+                            <span class="count">${count}</span>
+                        </div>
+                    `;
+                }).join('');
+
+                // Список подписок
+                const listContainer = document.getElementById('subscriptionsList');
+                if (subs.length === 0) {
+                    listContainer.innerHTML = '<p class="text-muted">Нет подписок</p>';
+                } else {
+                    listContainer.innerHTML = subs.map(s => {
+                        const statusClass = statusSmClass[s.status] || 'status-sm-active';
+                        const statusLabel = statusNames[s.status] || s.status;
+                        return `
+                            <div class="sub-card">
+                                <div class="info">
+                                    <span class="field"><strong>ID:</strong> ${s.id}</span>
+                                    <span class="field"><strong>Пользователь:</strong> ${s.user_id}</span>
+                                    <span class="field"><strong>Тариф:</strong> ${s.tariff?.name || '—'}</span>
+                                    <span class="status-badge-sm ${statusClass}">${statusLabel}</span>
+                                </div>
+                                <div class="actions">
+                                    ${s.status !== 'paused' && s.status !== 'cancelled' && s.status !== 'expired' ? `
+                                        <button class="btn btn-warning btn-sm" onclick="adminPause(${s.id})">⏸ Приостановить</button>
+                                    ` : ''}
+                                    ${s.status !== 'cancelled' && s.status !== 'expired' ? `
+                                        <button class="btn btn-danger btn-sm" onclick="adminCancel(${s.id})">✖ Отменить</button>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+
+                // Выручка
+                await loadRevenue();
+
+            } catch (error) {
+                console.error('loadAdminData error:', error);
+                document.getElementById('statusStats').innerHTML = `<p style="color:red;">Ошибка: ${error.message}</p>`;
+            }
+        }
+
+        // ============================================
+        // 4. ВЫРУЧКА ПО МЕСЯЦАМ
+        // ============================================
+        async function loadRevenue() {
+            const startDate = document.getElementById('revStartDate').value;
+            const endDate = document.getElementById('revEndDate').value;
+            const detailContainer = document.getElementById('revenueDetail');
+
+            try {
+                const revenue = await adminGetRevenue(startDate, endDate);
+
+                if (!revenue || revenue.total_revenue === undefined) {
+                    detailContainer.innerHTML = '<p class="text-muted">Нет данных за выбранный период</p>';
+                    return;
+                }
+
+                // Общая статистика
+                let html = `
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-label">Общая выручка</div>
+                            <div class="stat-value stat-value-blue">${Number(revenue.total_revenue).toFixed(2)} ₽</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Количество платежей</div>
+                            <div class="stat-value stat-value-green">${revenue.payments_count || 0}</div>
+                        </div>
+                    </div>
+                    <div style="font-size:13px; color:#8a9aa8; text-align:center; margin-bottom:16px;">
+                        Период: ${startDate || 'с начала'} — ${endDate || 'по сегодня'}
+                    </div>
+                `;
+
+                // Выручка по месяцам
+                if (revenue.monthly && revenue.monthly.length > 0) {
+                    const maxTotal = Math.max(...revenue.monthly.map(m => m.total), 1);
+                    html += `<div class="monthly-title">📊 По месяцам</div>`;
+                    html += revenue.monthly.map(m => {
+                        const percent = Math.round((m.total / maxTotal) * 100);
+                        return `
+                            <div class="revenue-item">
+                                <span class="month">${m.month}</span>
+                                <div class="bar-bg">
+                                    <div class="bar-fill" style="width:${percent}%;"></div>
+                                </div>
+                                <span class="amount">${m.total.toFixed(2)} ₽</span>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    html += `<p class="text-muted">Нет данных по месяцам</p>`;
+                }
+
+                detailContainer.innerHTML = html;
+
+            } catch (error) {
+                console.error('loadRevenue error:', error);
+                detailContainer.innerHTML = `<p style="color:red;">Ошибка загрузки выручки: ${error.message}</p>`;
+            }
+        }
+
+        // ============================================
+        // 5. АДМИН-ДЕЙСТВИЯ
+        // ============================================
+        window.adminPause = async function(subscriptionId) {
+            if (!confirm(`Приостановить подписку #${subscriptionId}?`)) return;
+            try {
+                await adminPauseSubscription(subscriptionId);
+                alert('✅ Подписка приостановлена');
+                await loadAdminData();
+            } catch (error) {
+                alert('❌ ' + error.message);
+            }
+        };
+
+        window.adminCancel = async function(subscriptionId) {
+            if (!confirm(`Отменить подписку #${subscriptionId}?`)) return;
+            try {
+                await adminCancelSubscription(subscriptionId);
+                alert('✅ Подписка отменена');
+                await loadAdminData();
+            } catch (error) {
+                alert('❌ ' + error.message);
+            }
+        };
+
+        // ============================================
+        // 6. КНОПКИ
+        // ============================================
+        document.getElementById('applyRevenueFilter')?.addEventListener('click', function() {
+            loadRevenue();
+        });
+
+        // ============================================
+        // 7. ВЫХОД
+        // ============================================
+        function logoutUser() {
+            logout();
+        }
+
+        // ============================================
+        // 8. АВТОЗАГРУЗКА
+        // ============================================
+        document.addEventListener('DOMContentLoaded', async function() {
+            const ok = await checkAdmin();
+            if (ok) {
+                await loadAdminData();
+            }
+        });
+    </script>
+
+</body>
+</html>

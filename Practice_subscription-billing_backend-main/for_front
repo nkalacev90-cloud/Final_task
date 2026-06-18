@@ -1,0 +1,41 @@
+Инструкция для фронтендера
+1. Скачай репозиторий
+
+Перейди по ссылке: https://github.com/TeomySinjeo/Practice_subscription-billing_backend
+
+Нажми зелёную кнопку Code → Download ZIP
+
+Распакуй архив в удобную папку
+
+2. Установи Python (если нет)
+
+Скачай Python с официального сайта: https://python.org
+
+При установке обязательно поставь галочку "Add Python to PATH"
+
+3. Открой командную строку (PowerShell) в папке проекта
+
+bash
+cd путь_к_папке\backend
+4. Создай виртуальное окружение
+
+bash
+python -m venv venv
+5. Активируй его
+
+bash
+venv\Scripts\activate
+(В начале строки появится (venv))
+
+6. Установи зависимости
+
+bash
+pip install -r requirements.txt
+7. Запусти сервер
+
+bash
+python main.py
+В терминале появится:
+
+text
+INFO: Uvicorn running on http://127.0.0.1:8001
