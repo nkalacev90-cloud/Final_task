@@ -1,1 +1,538 @@
+## Оглавление
+1. [Общее описание](#общее-описание)
+2. [Быстрый старт](#быстрый-старт)
+3. [Аутентификация](#аутентификация)
+4. [Эндпоинты API](#эндпоинты-api)
+5. [Структуры данных](#структуры-данных)
+6. [Примеры запросов](#примеры-запросов)
+7. [Коды ошибок](#коды-ошибок)
+8. [Чек-лист интеграции](#чек-лист-интеграции)
+
+---
+
+## Общее описание
+
+Бэкенд биллинговой системы предоставляет REST API для управления подписками, тарифами и платежами.
+
+**Base URL:** `http://127.0.0.1:8001`
+
+**Swagger (интерактивная документация):** `http://127.0.0.1:8001/docs`
+
+---
+
+## Быстрый старт
+
+### 1. Убедись, что бэкенд запущен
+
+В терминале бэкендера должно быть:
+INFO: Uvicorn running on http://127.0.0.1:8001
+
+text
+
+### 2. Подключи `api.js` к своему HTML
+
+```html
+<script src="api.js"></script>
+3. Основные функции
+javascript
+// Вход
+await login('admin@billing.local', 'admin123');
+
+// Получить тарифы
+const tariffs = await getTariffs();
+
+// Оформить подписку
+await createSubscription(tariffId);
+
+// Получить текущую подписку
+const sub = await getCurrentSubscription();
+
+// Получить историю платежей
+const payments = await getPayments(subscriptionId);
+
+// Сменить тариф
+await changeTariff(subscriptionId, newTariffId);
+
+// Отменить подписку
+await cancelSubscription(subscriptionId);
+
+// Приостановить подписку
+await pauseSubscription(subscriptionId);
+
+// Возобновить подписку
+await resumeSubscription(subscriptionId);
+Аутентификация
+Схема работы
+Вход → получаешь JWT-токен
+
+Сохраняешь токен в localStorage
+
+Отправляешь токен в заголовке Authorization при каждом запросе
+
+Как войти
+javascript
+const formData = new URLSearchParams();
+formData.append('username', 'admin@billing.local');
+formData.append('password', 'admin123');
+
+const response = await fetch('http://127.0.0.1:8001/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: formData
+});
+
+const data = await response.json();
+localStorage.setItem('access_token', data.access_token);
+Как отправлять запросы с токеном
+javascript
+const token = localStorage.getItem('access_token');
+
+fetch('http://127.0.0.1:8001/tariffs', {
+    headers: {
+        'Authorization': `Bearer ${token}`
+    }
+});
+Эндпоинты API
+1. Аутентификация
+Метод	Эндпоинт	Назначение
+POST	/register	Регистрация
+POST	/token	Вход (получение токена)
+GET	/users/me	Информация о текущем пользователе
+Регистрация
+http
+POST /register?email=user@mail.com&password=123456
+Вход
+http
+POST /token
+Content-Type: application/x-www-form-urlencoded
+
+username=admin@billing.local&password=admin123
+2. Тарифы
+Метод	Эндпоинт	Назначение	Доступ
+GET	/tariffs	Список тарифов	Пользователь
+POST	/tariffs	Создать тариф	Админ
+DELETE	/tariffs/{id}	Архивировать тариф	Админ
+Получить все тарифы
+http
+GET /tariffs
+Authorization: Bearer {token}
+Ответ:
+
+json
+[
+  {
+    "id": 1,
+    "name": "Старт",
+    "price": 490,
+    "period_months": 1,
+    "trial_days": 0,
+    "is_archived": false,
+    "created_at": "2026-06-18T10:00:00"
+  },
+  {
+    "id": 2,
+    "name": "Бизнес",
+    "price": 1490,
+    "period_months": 1,
+    "trial_days": 14,
+    "is_archived": false,
+    "created_at": "2026-06-18T10:00:00"
+  }
+]
+3. Подписки
+Метод	Эндпоинт	Назначение	Доступ
+POST	/subscriptions	Оформить подписку	Пользователь
+GET	/subscriptions/me	Текущая подписка	Пользователь
+PUT	/subscriptions/{id}/cancel	Отменить	Пользователь
+PUT	/subscriptions/{id}/pause	Приостановить	Пользователь
+PUT	/subscriptions/{id}/resume	Возобновить	Пользователь
+PUT	/subscriptions/{id}/change-tariff	Сменить тариф	Пользователь
+Оформить подписку
+http
+POST /subscriptions?tariff_id=2
+Authorization: Bearer {token}
+Ответ:
+
+json
+{
+  "id": 1,
+  "user_id": 1,
+  "tariff_id": 2,
+  "status": "trial",
+  "start_date": "2026-06-18T10:00:00",
+  "next_billing_date": "2026-07-02T10:00:00"
+}
+Получить текущую подписку
+http
+GET /subscriptions/me
+Authorization: Bearer {token}
+Ответ:
+
+json
+{
+  "id": 1,
+  "user_id": 1,
+  "tariff_id": 2,
+  "tariff": {
+    "id": 2,
+    "name": "Бизнес",
+    "price": 1490
+  },
+  "status": "active",
+  "start_date": "2026-06-18T10:00:00",
+  "next_billing_date": "2026-07-18T10:00:00",
+  "auto_renew": true
+}
+Сменить тариф (с пересчётом)
+http
+PUT /subscriptions/1/change-tariff?new_tariff_id=3
+Authorization: Bearer {token}
+Ответ:
+
+json
+{
+  "message": "Тариф успешно изменён",
+  "subscription": { ... },
+  "proration": {
+    "refund": 326.67,
+    "extra_charge": 993.33,
+    "difference": 666.66,
+    "days_remaining": 20
+  }
+}
+Важно: при смене тарифа пробный период не предоставляется повторно!
+
+4. Платежи
+Метод	Эндпоинт	Назначение	Доступ
+GET	/payments	История платежей	Пользователь
+Получить историю платежей
+http
+GET /payments?subscription_id=1&start_date=2026-01-01&end_date=2026-06-18
+Authorization: Bearer {token}
+Ответ (сортировка: сначала свежие):
+
+json
+[
+  {
+    "id": 3,
+    "amount": 1490,
+    "status": "paid",
+    "payment_date": "2026-06-18T10:00:00",
+    "tariff_name": "Бизнес",
+    "description": "Ежемесячное списание"
+  },
+  {
+    "id": 2,
+    "amount": 490,
+    "status": "paid",
+    "payment_date": "2026-05-18T10:00:00",
+    "tariff_name": "Старт",
+    "description": "Ежемесячное списание"
+  },
+  {
+    "id": 1,
+    "amount": 870,
+    "status": "prorated",
+    "payment_date": "2026-05-10T10:00:00",
+    "tariff_name": "Старт → Бизнес",
+    "description": "Пропорциональный пересчёт при смене тарифа"
+  }
+]
+5. Администрирование
+Метод	Эндпоинт	Назначение	Доступ
+GET	/admin/subscriptions	Все подписки	Админ
+GET	/admin/revenue	Отчёт по выручке	Админ
+PUT	/admin/subscriptions/{id}/pause	Приостановить	Админ
+PUT	/admin/subscriptions/{id}/cancel	Отменить	Админ
+POST	/admin/run-dunning	Запустить Dunning	Админ
+Отчёт по выручке
+http
+GET /admin/revenue?start_date=2026-01-01&end_date=2026-06-18
+Authorization: Bearer {token}
+Ответ:
+
+json
+{
+  "total_revenue": 14900,
+  "payments_count": 10,
+  "start_date": "2026-01-01",
+  "end_date": "2026-06-18",
+  "monthly": [
+    { "month": "Jan 2026", "total": 2000, "count": 2 },
+    { "month": "Feb 2026", "total": 3000, "count": 3 },
+    { "month": "Mar 2026", "total": 2500, "count": 2 },
+    { "month": "Jun 2026", "total": 5000, "count": 3 }
+  ]
+}
+Структуры данных
+Tariff (тариф)
+typescript
+{
+  id: number;
+  name: string;
+  price: number;
+  period_months: number;
+  trial_days: number;
+  is_archived: boolean;
+  created_at: string;  // ISO datetime
+}
+Subscription (подписка)
+typescript
+{
+  id: number;
+  user_id: number;
+  tariff_id: number;
+  tariff?: {
+    id: number;
+    name: string;
+    price: number;
+  };
+  status: 'trial' | 'active' | 'paused' | 'cancelled' | 'payment_error' | 'expired';
+  start_date: string;
+  trial_end_date: string | null;
+  next_billing_date: string;
+  end_date: string | null;
+  auto_renew: boolean;
+  retry_count: number;
+  next_retry_date: string | null;
+  created_at: string;
+  updated_at: string;
+}
+Payment (платёж)
+typescript
+{
+  id: number;
+  subscription_id: number;
+  amount: number;
+  status: 'pending' | 'paid' | 'failed' | 'prorated';
+  payment_date: string;
+  tariff_name: string;
+  description: string;
+}
+Revenue (отчёт по выручке)
+typescript
+{
+  total_revenue: number;
+  payments_count: number;
+  start_date: string;
+  end_date: string;
+  monthly: {
+    month: string;  // "Jan 2026"
+    total: number;
+    count: number;
+  }[];
+}
+Примеры запросов
+JavaScript (Fetch API)
+javascript
+const API_URL = 'http://127.0.0.1:8001';
+
+// ============================================
+// 1. ВХОД
+// ============================================
+async function login(email, password) {
+    const formData = new URLSearchParams();
+    formData.append('username', email);
+    formData.append('password', password);
+
+    const response = await fetch(`${API_URL}/token`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formData
+    });
+
+    const data = await response.json();
+    localStorage.setItem('access_token', data.access_token);
+    return data;
+}
+
+// ============================================
+// 2. ЗАПРОС С ТОКЕНОМ
+// ============================================
+async function apiRequest(url, options = {}) {
+    const token = localStorage.getItem('access_token');
+    const response = await fetch(`${API_URL}${url}`, {
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+            ...options.headers
+        }
+    });
+    return response;
+}
+
+// ============================================
+// 3. ПОЛУЧИТЬ ТАРИФЫ
+// ============================================
+async function getTariffs() {
+    const response = await apiRequest('/tariffs');
+    return await response.json();
+}
+
+// ============================================
+// 4. ОФОРМИТЬ ПОДПИСКУ
+// ============================================
+async function createSubscription(tariffId) {
+    const response = await apiRequest(`/subscriptions?tariff_id=${tariffId}`, {
+        method: 'POST'
+    });
+    return await response.json();
+}
+
+// ============================================
+// 5. ПОЛУЧИТЬ ТЕКУЩУЮ ПОДПИСКУ
+// ============================================
+async function getCurrentSubscription() {
+    const response = await apiRequest('/subscriptions/me');
+    if (response.status === 404) return null;
+    return await response.json();
+}
+
+// ============================================
+// 6. ПОЛУЧИТЬ ИСТОРИЮ ПЛАТЕЖЕЙ
+// ============================================
+async function getPayments(subscriptionId, startDate = '', endDate = '') {
+    let url = `/payments?subscription_id=${subscriptionId}`;
+    if (startDate) url += `&start_date=${startDate}`;
+    if (endDate) url += `&end_date=${endDate}`;
+    
+    const response = await apiRequest(url);
+    return await response.json();
+}
+
+// ============================================
+// 7. СМЕНИТЬ ТАРИФ
+// ============================================
+async function changeTariff(subscriptionId, newTariffId) {
+    const response = await apiRequest(
+        `/subscriptions/${subscriptionId}/change-tariff?new_tariff_id=${newTariffId}`,
+        { method: 'PUT' }
+    );
+    return await response.json();
+}
+
+// ============================================
+// 8. ОТМЕНИТЬ ПОДПИСКУ
+// ============================================
+async function cancelSubscription(subscriptionId) {
+    const response = await apiRequest(`/subscriptions/${subscriptionId}/cancel`, {
+        method: 'PUT'
+    });
+    return await response.json();
+}
+
+// ============================================
+// 9. ПРИОСТАНОВИТЬ ПОДПИСКУ
+// ============================================
+async function pauseSubscription(subscriptionId) {
+    const response = await apiRequest(`/subscriptions/${subscriptionId}/pause`, {
+        method: 'PUT'
+    });
+    return await response.json();
+}
+
+// ============================================
+// 10. ВОЗОБНОВИТЬ ПОДПИСКУ
+// ============================================
+async function resumeSubscription(subscriptionId) {
+    const response = await apiRequest(`/subscriptions/${subscriptionId}/resume`, {
+        method: 'PUT'
+    });
+    return await response.json();
+}
+Коды ошибок
+Код	Описание	Что делать
+200	Успех	Обрабатывай ответ
+400	Неверные параметры	Проверь данные запроса
+401	Требуется аутентификация	Перенаправь на страницу входа
+403	Недостаточно прав	Покажи сообщение "Доступ запрещён"
+404	Объект не найден	Покажи сообщение "Не найдено"
+422	Ошибка валидации	Проверь формат данных
+500	Внутренняя ошибка	Покажи "Что-то пошло не так"
+Чек-лист интеграции
+✅ Страница входа (login.html)
+Форма с полями email и password
+
+При отправке вызывается login()
+
+Токен сохраняется в localStorage
+
+После успешного входа — переход на account.html
+
+✅ Каталог тарифов (plans.html)
+При загрузке вызывается getTariffs()
+
+Карточки тарифов отображаются
+
+При клике на карточку — выбирается тариф
+
+Кнопка "Оформить" вызывает createSubscription()
+
+✅ Личный кабинет (account.html)
+При загрузке вызывается getCurrentSubscription()
+
+Отображаются: тариф, статус, дата списания
+
+Кнопка "Сменить тариф" → переход на plans.html?change=true
+
+Кнопка "Приостановить" → pauseSubscription()
+
+Кнопка "Возобновить" → resumeSubscription()
+
+Кнопка "Отменить" → cancelSubscription()
+
+История платежей → getPayments()
+
+Фильтры по дате работают
+
+✅ Админка (admin.html)
+Доступна только администраторам
+
+Графики статусов подписок
+
+Список всех подписок с кнопками действий
+
+Отчёт по выручке с группировкой по месяцам
+
+Частые проблемы и решения
+1. CORS ошибка
+text
+Access to fetch at 'http://127.0.0.1:8001/...' from origin 'http://127.0.0.1:5500' has been blocked
+Решение: Убедись, что бэкенд запущен с CORS-настройками.
+
+2. 401 Unauthorized
+json
+{"detail": "Not authenticated"}
+Решение: Токен не передан или истёк. Перенаправь на страницу входа.
+
+3. В истории нет платежей
+Решение: Создай тестовые платежи через Swagger или pgAdmin.
+
+Тестовые данные
+Администратор:
+
+Email: admin@billing.local
+
+Пароль: admin123
+
+Тестовые тарифы:
+
+Старт: 490 ₽ / месяц (без пробного)
+
+Бизнес: 1490 ₽ / месяц (пробный 14 дней)
+
+Корпоративный: 4900 ₽ / месяц (без пробного)
+
+Полезные ссылки
+Swagger: http://127.0.0.1:8001/docs
+
+Страница входа: login.html
+
+Каталог тарифов: plans.html
+
+Личный кабинет: account.html
+
+Админка: admin.html
+
 
