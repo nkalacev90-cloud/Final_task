@@ -513,6 +513,38 @@ def resume_subscription(
     db.commit()
     return {"message": "Подписка возобновлена", "subscription": subscription}
 
+@app.get("/my-subscriptions")
+def get_my_subscriptions(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Получить все подписки текущего пользователя"""
+    subscriptions = db.query(Subscription).filter(
+        Subscription.user_id == current_user.id
+    ).order_by(Subscription.created_at.desc()).all()
+    
+    # Подгружаем тарифы
+    result = []
+    for sub in subscriptions:
+        tariff = db.query(Tariff).filter(Tariff.id == sub.tariff_id).first()
+        result.append({
+            "id": sub.id,
+            "user_id": sub.user_id,
+            "tariff_id": sub.tariff_id,
+            "tariff": {"id": tariff.id, "name": tariff.name, "price": tariff.price} if tariff else None,
+            "status": sub.status,
+            "start_date": sub.start_date,
+            "next_billing_date": sub.next_billing_date,
+            "trial_end_date": sub.trial_end_date,
+            "end_date": sub.end_date,
+            "auto_renew": sub.auto_renew,
+            "retry_count": sub.retry_count,
+            "next_retry_date": sub.next_retry_date,
+            "created_at": sub.created_at,
+            "updated_at": sub.updated_at
+        })
+    
+    return result
 # ========== 12. ЗАПУСК ==========
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8001)
